@@ -932,11 +932,9 @@ function renderizarCatalogo() {
   }
 
   tela.innerHTML = lista.map(produto => {
-    const tabelasVisiveis = filtrarTabelasDoUsuario(produto);
-
     return `
-      <div class="card-produto ${produto.ativo ? "" : "inativo"}" onclick="abrirPopupProduto(${produto.id})">
-        <img src="${produto.imagem || imagemPadrao()}" alt="${produto.nome}">
+      <div class="card-produto ${produto.ativo ? "" : "inativo"}">
+        <img class="imagem-produto-click" src="${produto.imagem || imagemPadrao()}" alt="${produto.nome}" onclick="abrirPopupProduto(${produto.id})" title="CLIQUE PARA VER OS VALORES">
 
         <div class="info-produto">
           <span class="categoria-produto">${produto.categoria}</span>
@@ -950,18 +948,8 @@ function renderizarCatalogo() {
           <h3>${produto.nome}</h3>
           <p>${produto.descricao || "SEM DESCRIÇÃO"}</p>
 
-          <div class="lista-tabelas-produto">
-            ${tabelasVisiveis.map(tabela => `
-              <div class="tabela-item-catalogo">
-                <div class="tabela-info-esquerda">
-                  <strong>${tabela.descricaoTabela || `COMISSÃO ${tabela.comissao}%`}</strong>
-                </div>
-
-                <span class="preco-verde">
-                  R$ ${formatarValor(tabela.valor)}
-                </span>
-              </div>
-            `).join("")}
+          <div class="aviso-valores" onclick="abrirPopupProduto(${produto.id})">
+            CLIQUE NA IMAGEM PARA VER OS VALORES
           </div>
         </div>
 

@@ -416,6 +416,31 @@ background:
   padding:14px;
 }
 
+.imagem-produto-click{
+  cursor:pointer;
+}
+
+.imagem-produto-click:hover{
+  transform:scale(1.03);
+}
+
+.aviso-valores{
+  margin-top:14px;
+  background:#fff3f3;
+  color:#9b0000;
+  border:1px dashed #c50000;
+  padding:10px 12px;
+  border-radius:12px;
+  font-size:12px;
+  font-weight:900;
+  text-align:center;
+  cursor:pointer;
+}
+
+.aviso-valores:hover{
+  background:#ffe5e5;
+}
+
 .info-produto{
   padding:16px;
   flex:1;
