@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>CATÁLOGO ERP</title>
+
+  <link rel="stylesheet" href="main.css">
+
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+
+<body>
+
+  <!-- LOGIN -->
+
+  <div class="login-container" id="telaLogin">
+
+    <div class="login-box">
+
+      <div class="login-logo">
+  <img src="logo2.png" class="login-logo-img">
+</div>
+
+      <h1>CATÁLOGO ERP</h1>
+
+      <p>SISTEMA COMERCIAL</p>
+
+      <div class="campo-login">
+        <label>EMAIL</label>
+
+        <input type="email" id="loginEmail">
+      </div>
+
+      <div class="campo-login">
+        <label>SENHA</label>
+
+        <input type="password" id="loginSenha">
+      </div>
+
+      <button class="btn-login" onclick="fazerLogin()">
+        ENTRAR
+      </button>
+
+      <small id="loginErro"></small>
+
+    </div>
+
+  </div>
+
+  <!-- SISTEMA -->
+
+  <div class="sistema oculto" id="sistema">
+
+    <!-- MENU MOBILE -->
+
+    <button class="btn-mobile" onclick="toggleMenuMobile()">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+
+    <!-- MENU -->
+
+    <aside class="menu-lateral" id="menuLateral">
+
+      <div class="logo-menu">
+
+        <img src="logo.png"
+          class="logo-icon-img"
+          alt="LOGO">
+
+        <h2>CATÁLOGO ERP</h2>
+
+      </div>
+
+      <div class="usuario-box">
+
+        <strong id="usuarioNome">USUÁRIO</strong>
+
+        <span id="usuarioPermissao">VENDEDOR</span>
+
+        <small id="usuarioTabela">SEM TABELA</small>
+
+      </div>
+
+      <button onclick="abrirModalProduto()" class="admin-only">
+        <i class="fa-solid fa-box"></i>
+        NOVO PRODUTO
+      </button>
+
+      <button onclick="abrirModalCategoria()" class="admin-only">
+        <i class="fa-solid fa-layer-group"></i>
+        CATEGORIAS
+      </button>
+
+      <button onclick="abrirModalTabelas()" class="admin-only">
+        <i class="fa-solid fa-table"></i>
+        TABELAS
+      </button>
+
+      <button onclick="abrirModalUsuarios()" class="admin-only">
+        <i class="fa-solid fa-users"></i>
+        USUÁRIOS
+      </button>
+
+      <button onclick="abrirModalEmpresa()" class="admin-only">
+        <i class="fa-solid fa-building"></i>
+        EMPRESA
+      </button>
+
+      <button onclick="abrirPopupPDF()">
+        <i class="fa-solid fa-file-pdf"></i>
+        GERAR PDF
+      </button>
+
+      <button onclick="baixarPlanilhaProdutos()" class="admin-only">
+        <i class="fa-solid fa-download"></i>
+        BAIXAR PLANILHA
+      </button>
+
+      <label class="botao-importar admin-only">
+
+        <i class="fa-solid fa-upload"></i>
+        IMPORTAR XLS
+
+        <input type="file"
+          id="arquivoAtualizarProdutos"
+          accept=".xlsx,.xls">
+
+      </label>
+
+      <button onclick="logoutSistema()">
+        <i class="fa-solid fa-right-from-bracket"></i>
+        SAIR
+      </button>
+
+    </aside>
+
+    <!-- CONTEÚDO -->
+
+    <main class="conteudo">
+
+      <!-- TOPO -->
+
+      <section class="topo">
+
+        <div class="empresa-topo">
+
+          <img id="empresaLogoTopo"
+            src=""
+            alt="LOGO"
+            style="display:none;">
+
+          <div>
+            <h1 id="empresaNomeTopo">
+              REI DA MUSSARELA
+            </h1>
+
+            <p>SISTEMA DE CATÁLOGO COMERCIAL</p>
+          </div>
+
+        </div>
+
+        <div class="hora-topo">
+
+          <span id="dataAtual"></span>
+
+          <strong id="horaAtual"></strong>
+
+        </div>
+
+      </section>
+
+      <!-- DASHBOARD -->
+
+      <section class="dashboard">
+
+        <div class="card-dashboard">
+
+          <i class="fa-solid fa-box"></i>
+
+          <div>
+            <h3 id="totalProdutos">0</h3>
+            <p>PRODUTOS</p>
+          </div>
+
+        </div>
+
+        <div class="card-dashboard">
+
+          <i class="fa-solid fa-check"></i>
+
+          <div>
+            <h3 id="totalAtivos">0</h3>
+            <p>ATIVOS</p>
+          </div>
+
+        </div>
+
+        <div class="card-dashboard">
+
+          <i class="fa-solid fa-tags"></i>
+
+          <div>
+            <h3 id="totalTabelas">0</h3>
+            <p>TABELAS</p>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- FILTROS -->
+
+      <section class="filtros">
+
+        <input type="text"
+          id="pesquisaProduto"
+          placeholder="PESQUISAR PRODUTO..."
+          onkeyup="renderizarCatalogo()">
+
+        <select id="filtroCategoria"
+          onchange="renderizarCatalogo()">
+
+          <option value="todos">
+            TODAS CATEGORIAS
+          </option>
+
+        </select>
+
+      </section>
+
+      <!-- CATÁLOGO -->
+
+      <section class="catalogo-box">
+
+        <div class="catalogo-topo">
+          <h2>CATÁLOGO COMERCIAL</h2>
+        </div>
+
+        <div class="catalogo-grid"
+          id="catalogoProdutos">
+
+        </div>
+
+      </section>
+
+    </main>
+
+  </div>
+
+  <!-- MODAL PRODUTO -->
+
+  <div class="modal" id="modalProduto">
+
+    <div class="modal-box">
+
+      <div class="modal-topo">
+
+        <h2>PRODUTO</h2>
+
+        <button onclick="fecharModalProduto()">
+          &times;
+        </button>
+
+      </div>
+
+      <div class="modal-conteudo">
+
+        <input type="hidden" id="produtoId">
+
+        <div class="grid-produto">
+
+          <div class="campo">
+
+            <label>CÓDIGO</label>
+
+            <input type="text"
+              id="produtoCodigo">
+
+          </div>
+
+          <div class="campo">
+
+            <label>NOME</label>
+
+            <input type="text"
+              id="produtoNome">
+
+          </div>
+
+          <div class="campo">
+
+            <label>CATEGORIA</label>
+
+            <select id="produtoCategoria"></select>
+
+          </div>
+
+          <div class="campo">
+
+            <label>STATUS</label>
+
+            <select id="produtoAtivo">
+
+              <option value="true">ATIVO</option>
+
+              <option value="false">INATIVO</option>
+
+            </select>
+
+          </div>
+
+        </div>
+
+        <div class="campo">
+
+          <label>DESCRIÇÃO</label>
+
+          <textarea id="produtoDescricao"></textarea>
+
+        </div>
+
+        <div class="campo">
+
+          <label>IMAGEM 1050X1050</label>
+
+          <input type="file"
+            id="produtoImagem"
+            accept="image/*">
+
+        </div>
+
+        <!-- TABELAS -->
+
+        <div class="tabelas-box">
+
+          <div class="tabelas-topo">
+
+            <h3>TABELAS COMERCIAIS</h3>
+
+            <button onclick="adicionarTabela()">
+              ADICIONAR
+            </button>
+
+          </div>
+
+          <div id="listaTabelas"></div>
+
+        </div>
+
+      </div>
+
+      <div class="modal-botoes">
+
+        <button class="btn-secundario"
+          onclick="fecharModalProduto()">
+
+          CANCELAR
+
+        </button>
+
+        <button class="btn-salvar"
+          onclick="salvarProduto()">
+
+          SALVAR
+
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- MODAL CATEGORIAS -->
+
+  <div class="modal" id="modalCategoria">
+
+    <div class="modal-categoria">
+
+      <div class="modal-topo">
+
+        <h2>CATEGORIAS</h2>
+
+        <button onclick="fecharModalCategoria()">
+          &times;
+        </button>
+
+      </div>
+
+      <div class="modal-conteudo">
+
+        <div class="categoria-add">
+
+          <input type="text"
+            id="novaCategoria"
+            placeholder="NOME DA CATEGORIA">
+
+          <button onclick="salvarCategoria()">
+            ADICIONAR
+          </button>
+
+        </div>
+
+        <div id="listaCategorias"></div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- MODAL TABELAS -->
+
+  <div class="modal" id="modalTabelas">
+
+    <div class="modal-categoria">
+
+      <div class="modal-topo">
+
+        <h2>TABELAS</h2>
+
+        <button onclick="fecharModalTabelas()">
+          &times;
+        </button>
+
+      </div>
+
+      <div class="modal-conteudo">
+
+        <input type="hidden" id="tabelaEditandoId">
+
+        <input type="hidden" id="tabelaNomeAntigo">
+
+        <div class="campo">
+
+          <label>NOME DA TABELA</label>
+
+          <input type="text"
+            id="novaTabelaNome">
+
+        </div>
+
+        <div class="campo">
+
+          <label>TIPO</label>
+
+          <select id="novaTabelaTipo">
+
+            <option value="vendedor">VENDEDOR</option>
+
+            <option value="representante">REPRESENTANTE</option>
+
+            <option value="representante_comfro">
+              REPRESENTANTE COMFRO
+            </option>
+
+          </select>
+
+        </div>
+
+        <div class="botoes-inline">
+
+          <button class="btn-salvar"
+            onclick="salvarTabelaComercial()">
+
+            SALVAR
+
+          </button>
+
+          <button class="btn-secundario"
+            onclick="limparFormularioTabela()">
+
+            LIMPAR
+
+          </button>
+
+        </div>
+
+        <div id="listaTabelasComerciais"></div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- MODAL EMPRESA -->
+
+  <div class="modal" id="modalEmpresa">
+
+    <div class="modal-categoria">
+
+      <div class="modal-topo">
+
+        <h2>EMPRESA</h2>
+
+        <button onclick="fecharModalEmpresa()">
+          &times;
+        </button>
+
+      </div>
+
+      <div class="modal-conteudo">
+
+        <div class="campo">
+
+          <label>NOME</label>
+
+          <input type="text"
+            id="empresaNome">
+
+        </div>
+
+        <div class="campo">
+
+          <label>CNPJ</label>
+
+          <input type="text"
+            id="empresaCnpj">
+
+        </div>
+
+        <div class="campo">
+
+          <label>TELEFONE</label>
+
+          <input type="text"
+            id="empresaTelefone">
+
+        </div>
+
+        <div class="campo">
+
+          <label>LOGO</label>
+
+          <input type="file"
+            id="empresaLogo"
+            accept="image/*">
+
+        </div>
+
+      </div>
+
+      <div class="modal-botoes">
+
+        <button class="btn-secundario"
+          onclick="fecharModalEmpresa()">
+
+          CANCELAR
+
+        </button>
+
+        <button class="btn-salvar"
+          onclick="salvarEmpresa()">
+
+          SALVAR
+
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- MODAL USUÁRIOS -->
+
+  <div class="modal" id="modalUsuarios">
+
+    <div class="modal-box">
+
+      <div class="modal-topo">
+
+        <h2>USUÁRIOS</h2>
+
+        <button onclick="fecharModalUsuarios()">
+          &times;
+        </button>
+
+      </div>
+
+      <div class="modal-conteudo">
+
+        <input type="hidden"
+          id="usuarioEditandoId">
+
+        <div class="grid-produto">
+
+          <div class="campo">
+
+            <label>NOME</label>
+
+            <input type="text"
+              id="usuarioNovoNome">
+
+          </div>
+
+          <div class="campo">
+
+            <label>EMAIL</label>
+
+            <input type="email"
+              id="usuarioNovoEmail">
+
+          </div>
+
+          <div class="campo">
+
+            <label>SENHA</label>
+
+            <input type="password"
+              id="usuarioNovoSenha">
+
+          </div>
+
+          <div class="campo">
+
+            <label>PERMISSÃO</label>
+
+            <select id="usuarioNovoPermissao">
+
+              <option value="vendedor">VENDEDOR</option>
+
+              <option value="representante">REPRESENTANTE</option>
+
+              <option value="representante_comfro">
+                REPRESENTANTE COMFRO
+              </option>
+
+              <option value="admin">ADMIN</option>
+
+            </select>
+
+          </div>
+
+        </div>
+
+        <div class="campo">
+
+          <label>TABELA VINCULADA</label>
+
+          <input type="text"
+            id="usuarioNovaTabela">
+
+        </div>
+
+        <div class="modal-botoes">
+
+          <button class="btn-salvar"
+            onclick="criarUsuario()">
+
+            SALVAR USUÁRIO
+
+          </button>
+
+        </div>
+
+        <div id="listaUsuarios"></div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- POPUP PDF -->
+
+  <div class="modal" id="popupPDF">
+
+    <div class="modal-categoria">
+
+      <div class="modal-topo">
+
+        <h2>GERAR PDF</h2>
+
+        <button onclick="fecharPopupPDF()">
+          &times;
+        </button>
+
+      </div>
+
+      <div class="modal-conteudo">
+
+        <p>
+          O PDF SERÁ GERADO SEM PREÇOS.
+        </p>
+
+      </div>
+
+      <div class="modal-botoes">
+
+        <button class="btn-secundario"
+          onclick="fecharPopupPDF()">
+
+          CANCELAR
+
+        </button>
+
+        <button class="btn-salvar"
+          onclick="gerarPDF()">
+
+          GERAR PDF
+
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- POPUP PRODUTO -->
+
+  <div class="modal" id="popupProduto">
+
+    <div class="modal-categoria">
+
+      <div class="modal-topo">
+
+        <h2 id="popupProdutoTitulo">
+          PRODUTO
+        </h2>
+
+        <button onclick="fecharPopupProduto()">
+          &times;
+        </button>
+
+      </div>
+
+      <div class="modal-conteudo">
+
+        <img id="popupProdutoImagem"
+          class="popup-produto-img"
+          src="">
+
+        <p id="popupProdutoDescricao"
+          class="popup-produto-desc">
+
+        </p>
+
+        <div id="popupProdutoPrecos"
+          class="popup-produto-precos">
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ÁREA PDF -->
+
+  <div class="area-pdf"
+    id="areaPDF"></div>
+
+  <script type="module"
+    src="script.js"></script>
+
+</body>
+
+</html>
