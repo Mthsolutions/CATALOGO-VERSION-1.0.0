@@ -1,3 +1,4 @@
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 
 import {
@@ -16,6 +17,17 @@ import {
   onAuthStateChanged,
   createUserWithEmailAndPassword
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+//BANCO DE DADOS SUPEBASE
+
+const SUPABASE_URL = "https://nzsatubgbwlqiykvcuuz.supabase.co";
+
+const SUPABASE_ANON_KEY = "sb_publishable_L-0vv2RuCRXOf2zEfWfklg_qHqUdfjT";
+
+const supabaseClient = supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
+);
 
 /* ================= FIREBASE ================= */
 
@@ -770,6 +782,41 @@ function capturarTabelas() {
   return tabelas;
 }
 
+async function uploadImagemSupabase(arquivoImagem, nomeProduto) {
+  const extensao = arquivoImagem.name.split(".").pop().toLowerCase();
+
+  const nomeLimpo = String(nomeProduto || "produto")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9]/g, "-")
+    .toLowerCase();
+
+  const nomeArquivo = `${Date.now()}-${nomeLimpo}.${extensao}`;
+
+  console.log("Enviando para Supabase:", nomeArquivo);
+
+  const { data, error } = await supabaseClient.storage
+    .from("produtos")
+    .upload(nomeArquivo, arquivoImagem, {
+      cacheControl: "3600",
+      upsert: true
+    });
+
+  if (error) {
+    console.error("ERRO COMPLETO SUPABASE:", error);
+    alert("Erro Supabase: " + error.message);
+    return "";
+  }
+
+  const { data: urlData } = supabaseClient.storage
+    .from("produtos")
+    .getPublicUrl(nomeArquivo);
+
+  console.log("URL GERADA:", urlData.publicUrl);
+
+  return urlData.publicUrl;
+}
+
 async function salvarProduto() {
   if (!isAdmin()) return;
 
@@ -792,22 +839,32 @@ async function salvarProduto() {
     return;
   }
 
+  let imagemFinal = "";
+
   const arquivoImagem = imagemInput.files[0];
 
   if (arquivoImagem) {
-    const reader = new FileReader();
-
-    reader.onload = async e => {
-      await salvarProdutoFinal(id, codigo, nome, categoria, ativo, descricao, tabelas, e.target.result);
-    };
-
-    reader.readAsDataURL(arquivoImagem);
+    try {
+      imagemFinal = await uploadImagemSupabase(arquivoImagem, nome);
+    } catch (erro) {
+      alert(erro.message);
+      return;
+    }
   } else {
     const produtoAtual = produtos.find(item => item.id == id);
-    const imagemAntiga = produtoAtual ? produtoAtual.imagem : "";
-
-    await salvarProdutoFinal(id, codigo, nome, categoria, ativo, descricao, tabelas, imagemAntiga);
+    imagemFinal = produtoAtual ? produtoAtual.imagem : "";
   }
+
+  await salvarProdutoFinal(
+    id,
+    codigo,
+    nome,
+    categoria,
+    ativo,
+    descricao,
+    tabelas,
+    imagemFinal
+  );
 }
 
 async function salvarProdutoFinal(id, codigo, nome, categoria, ativo, descricao, tabelas, imagem) {
