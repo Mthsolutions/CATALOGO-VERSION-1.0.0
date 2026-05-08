@@ -1189,3 +1189,8 @@ body{
     flex-direction:column;
   }
 }
+.logo-menu-img{
+  width: 180px;
+  height: auto;
+  object-fit: contain;
+}
