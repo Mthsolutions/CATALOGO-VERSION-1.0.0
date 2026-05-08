@@ -20,24 +20,23 @@ import {
 
 //BANCO DE DADOS SUPEBASE
 
-const SUPABASE_URL = "https://nzsatubgbwlqiykvcuuz.supabase.co";
+const SUPABASE_URL = "https://nzxgkhsahvwqiijpoaxv.supabase.co";
 
-const SUPABASE_ANON_KEY = "sb_publishable_L-0vv2RuCRXOf2zEfWfklg_qHqUdfjT";
+const SUPABASE_ANON_KEY = "sb_publishable_j_Qjh7NC2K7q0Ylu4h4C0Q_zphOb7ke";
 
 const supabaseClient = supabase.createClient(
     SUPABASE_URL,
     SUPABASE_ANON_KEY
 );
-
 /* ================= FIREBASE ================= */
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCmWszDrWHTQ5PXK_dxnayhxMmvHfKzeBU",
-  authDomain: "catalogoteste2.firebaseapp.com",
-  projectId: "catalogoteste2",
-  storageBucket: "catalogoteste2.firebasestorage.app",
-  messagingSenderId: "1040593537973",
-  appId: "1:1040593537973:web:714986bb161e996ab167fc"
+  apiKey: "AIzaSyCdLBgfRr6qFcN5X9YWiKQlOCNAkV0GPg4",
+  authDomain: "servidorcatalogomth.firebaseapp.com",
+  projectId: "servidorcatalogomth",
+  storageBucket: "servidorcatalogomth.firebasestorage.app",
+  messagingSenderId: "992953615248",
+  appId: "1:992953615248:web:f6cea78aa180cbf1f1e915"
 };
 
 const app = initializeApp(firebaseConfig);
